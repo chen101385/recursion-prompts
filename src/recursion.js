@@ -329,13 +329,40 @@ var array = str.split('');
 };
 
 // 17. Reverse the order of an array
+/*
+push first index of array to newArray
+remove first element of array;
+recursion
+if array.length = 0 --> return newArray
+*/
 var reverseArr = function(array) {
+    var result = [];
+    var newArray; 
+    if (array.length===0) {
+        return result;
+    }
+    if (array.length > 0) {
+        //push last element to result
+        result.push(array[array.length-1]);
+        //shorten array by removing last element
+        newArray = array.slice(0, array.length - 1);
+        //recursion via concatenation of arrays
+        return result.concat(reverseArr(newArray));
+    }
 };
 
 // 18. Create a new array with a given value and length.
 // buildList(0,5) // [0,0,0,0,0]
 // buildList(7,3) // [7,7,7]
 var buildList = function(value, length) {
+    var result = [];
+    if (length === 0) {
+        return result;
+    }
+    if (length > 0) {
+        result.push(value);
+        return result.concat(buildList(value, length - 1));
+    }
 };
 
 // 19. Implement FizzBuzz. Given integer n, return an array of the string representations of 1 to n.
@@ -343,16 +370,89 @@ var buildList = function(value, length) {
 // For multiples of five, output 'Buzz' instead of the number.
 // For numbers which are multiples of both three and five, output “FizzBuzz” instead of the number.
 // fizzBuzz(5) // ['1','2','Fizz','4','Buzz']
+//
 var fizzBuzz = function(n) {
+    var result = [];
+    var output = [];
+    
+    if (n > 0 && n % 3 !== 0 && n % 5 !== 0) {
+        result.splice(0, 0, n.toString());
+        return (fizzBuzz(n-1)).concat(result);
+    }
+    if (n > 0 && n % 3 ===0 && n % 5 !== 0) {
+        result.splice(0, 0, 'Fizz');
+        return (fizzBuzz(n-1)).concat(result);
+    }
+    if (n > 0 && n % 5 ===0 && n % 3 !== 0) {
+        result.splice(0, 0, 'Buzz');
+        return (fizzBuzz(n-1)).concat(result);
+    }
+    if ( n > 0 && n % 5 === 0 && n % 3 === 0) {
+        result.splice(0, 0, 'FizzBuzz');
+        return (fizzBuzz(n-1)).concat(result);
+    }
+    if (n === 0) {
+        return result;
+    }
 };
 
 // 20. Count the occurence of a value in a list.
 // countOccurrence([2,7,4,4,1,4], 4) // 3
 // countOccurrence([2,'banana',4,4,1,'banana'], 'banana') // 2
+//recursion for each element of array;
+// how to maintain count?
+//how to push array in recursion that stores value;
 var countOccurrence = function(array, value) {
+   
+  for (var i = 0; i < array.length; i++) {
+  	if (array[i] !== value) {
+  		array.splice(i, 1);
+  		countOccurrence(array, value);
+  	  };
+  	};
+  	return array.length;
+  };
+
+
+
+/*
+   //Version #1 
+
+   var results = 0;
+
+   var counter = function(arr) {
+    var newArray;
+   	if (arr.length > 0) {
+   		if (arr[0] === value) {
+          results++;
+   		}
+   	    newArray = arr.slice(1, arr.length);
+   	    counter(newArray);
+   	};
+  };
+  counter(array);
+
+  return results;
 };
 
 
+
+//Version #2
+  var newArray,
+   results = result || [];
+
+   if (array.length > 0) {
+   	 if (array[0] === value) {
+   	 	results.push(array[0])
+   	 }
+   	 newArray = array.slice(1, array.length)
+     return countOccurrence(newArray, value, results)
+   }
+
+   if (array.length === 0) {
+   	return result.length;
+   }
+*/
 
 
 
@@ -362,13 +462,31 @@ var countOccurrence = function(array, value) {
 // 21. Write a recursive version of map.
 // rMap([1,2,3], timesTwo); // [2,4,6]
 var rMap = function(array, callback) {
+  
+  if (array.length === 0) {
+  	return [];
+  }
+
+  return [].concat(callback(array[0]), rMap(array.slice(1, array.length), callback));
 };
 
 // 22. Write a function that counts the number of times a key occurs in an object.
 // var obj = {'e':{'x':'y'},'t':{'r':{'e':'r'},'p':{'y':'r'}},'y':'e'};
 // countKeysInObj(obj, 'r') // 1
 // countKeysInObj(obj, 'e') // 2
+// keys are always strings
 var countKeysInObj = function(obj, key) {
+   var count = 0;
+
+   for (var prop in obj) {
+   	if (prop === key) {
+   		count++;
+   	  };
+   	if (typeof obj[prop] === 'object') {
+   		count += countKeysInObj(obj[prop], key);
+   	  };
+   };
+   return count;
 };
 
 // 23. Write a function that counts the number of times a value occurs in an object.
@@ -376,11 +494,34 @@ var countKeysInObj = function(obj, key) {
 // countValuesInObj(obj, 'r') // 2
 // countValuesInObj(obj, 'e') // 1
 var countValuesInObj = function(obj, value) {
+	var count = 0;
+
+	for (var prop in obj) {
+		if (obj[prop] === value) {
+			count++;
+		}
+
+		if (typeof obj[prop] === 'object') {
+			count += countValuesInObj(obj[prop], value)
+		}
+	}
+	return count;
 };
 
 // 24. Find all keys in an object (and nested objects) by a provided name and rename
 // them to a provided new name while preserving the value stored at that key.
 var replaceKeysInObj = function(obj, oldKey, newKey) {
+	for (var prop in obj) {
+		if (prop === oldKey) {
+			obj[newKey] = obj[prop];
+			delete obj[prop];
+		};
+
+		if (typeof obj[prop] === 'object') {
+			replaceKeysInObj(obj[prop], oldKey, newKey);
+		};
+	};
+	return obj;
 };
 
 // 25. Get the first n Fibonacci numbers. In the Fibonacci sequence, each subsequent
@@ -389,7 +530,55 @@ var replaceKeysInObj = function(obj, oldKey, newKey) {
 // fibonacci(5); // [0,1,1,2,3,5]
 // Note: The 0 is not counted.
 var fibonacci = function(n) {
+	if ( n <= 0) {
+		return null;
+	}
+
+	if ( n === 1 ) {
+		return [0, 1]
+	}
+	if ( n === 2 ) {
+		return [0, 1, 1]
+	}
+
+	var a = fibonacci(n-1);
+	//fibonacci(n); n = last element index; 
+	//a[n-1] = last indexed element;
+	//a[n-2] = second to last indexed element;
+	a.push(a[n-1] + a[n-2]);
+	return a;
 };
+
+/*
+Attempt #1: INNER RECURSION; partial success - did not pass 'should use recursion by calling itself' test.
+ 
+	var results = [];
+
+	if (n <= 0) {
+		return null;
+	}
+    
+    var sequencer = function(i) {
+      if (i === 0) {
+      	return 0;
+      }
+
+      if (i <= 2) {
+      	return 1;
+      };
+      return sequencer(i-1) + sequencer(i-2);
+    };
+
+    for (var j = 0; j <= n; j++) {
+      results.push(sequencer(j));
+    }
+
+    return results;
+
+
+
+*/
+
 
 // 26. Return the Fibonacci number located at index n of the Fibonacci sequence.
 // [0,1,1,2,3,5,8,13,21]
@@ -397,6 +586,21 @@ var fibonacci = function(n) {
 // nthFibo(7); // 13
 // nthFibo(3); // 2
 var nthFibo = function(n) {
+	if (n < 0) {
+		return null;
+	}
+
+	if (n === 0) {
+		return 0;
+	}
+
+	if (n <= 2) {
+		return 1;
+	}
+
+	if ( n > 2) {
+		return nthFibo(n-1) + nthFibo(n-2);
+	}
 };
 
 // 27. Given an array of words, return a new array containing each word capitalized.
@@ -425,11 +629,45 @@ var nestedEvenSum = function(obj) {
 // 30. Flatten an array containing nested arrays.
 // flatten([1,[2],[3,[[4]]],5]); // [1,2,3,4,5]
 var flatten = function(array) {
+    var result = [];
+
+    for ( var i = 0; i < array.length; i++) {
+    	if (!Array.isArray(array[i])) {
+    		result.push(array[i]);
+    	} else {
+    		result = result.concat(flatten(array[i]));
+    	}
+    }
+    return result;
 };
+
+  /*
+    VERSION 1
+
+    array.forEach(function(element) {
+      if (!Array.isArray(element)) {
+      	result.push(element);
+      } else {
+      	result = result.concat(flatten(element));
+      };
+    });
+    */
 
 // 31. Given a string, return an object containing tallies of each letter.
 // letterTally('potato'); // {p:1, o:2, t:2, a:1}
 var letterTally = function(str, obj) {
+	var obj = {};
+
+	var letters = str.split('');
+
+		for ( var i = 0; i < letters.length; i++ ) {
+          if (!obj.hasOwnProperty(obj[letters[i]])) {
+          	obj[letters[i]] = 1;
+          } else {
+          	obj[letters[i]] += 1;
+          };
+		};
+	return obj;
 };
 
 // 32. Eliminate consecutive duplicates in a list. If the list contains repeated
@@ -438,12 +676,60 @@ var letterTally = function(str, obj) {
 // compress([1,2,2,3,4,4,5,5,5]) // [1,2,3,4,5]
 // compress([1,2,2,3,4,4,2,5,5,5,4,4]) // [1,2,3,4,2,5,4]
 var compress = function(list) {
+    var result = list.slice();
+
+	for (var i = 0; i < result.length; i++) {
+      if (result[i] === result[i-1]) {
+      	result.splice(i, 1);
+      	return compress(result);
+      }
+	}
+	return result;
 };
+
+/* NON-RECURSION
+
+var results = [];
+
+	for ( var i = 0; i < list.length; i++ ) {
+		if (list[i] !== list[i-1]) {
+			results.push(list[i]);
+		}
+	}
+	return results;
+
+	*/
 
 // 33. Augument every element in a list with a new value where each element is an array
 // itself.
 // augmentElements([[],[3],[7]], 5); // [[5],[3,5],[7,5]]
+//recursion should be for arrays within arrays;
+//
 var augmentElements = function(array, aug) {
+    var result = [];
+
+	for (var i = 0; i < array.length; i++) {
+		var innerArray = [];
+		//if array
+		if (Array.isArray(array[i]) && array[i].length === 0) {
+			innerArray.push(aug);
+			result.push(innerArray);
+			//[aug] is pushed to result;
+		}
+
+		if (Array.isArray(array[i]) && array.length !== 0) {
+			result = result.concat(augmentElements(array[i], aug));
+			//result concatenates with [ [ array[i], aug ] ];
+		}
+
+		if (!Array.isArray(array[i])) {
+        //if non-array
+        innerArray.push(array[i], aug);
+        result.push(innerArray);
+        //[array[i], aug] is pushed to result;
+		}
+	}
+	return result;
 };
 
 // 34. Reduce a series of zeroes to a single 0.
